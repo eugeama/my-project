@@ -54,7 +54,7 @@ export default function PostCard({ post, currentUser }) {
     <div style={{ border: '1px solid #ccc', borderRadius: 8, padding: '12px 16px', marginBottom: 12 }}>
       {/* Author + timestamps */}
       <div style={{ marginBottom: 8 }}>
-        <strong>{post.authorUsername}</strong>
+        <span>{post.authorUsername}</span>
         {createdLabel && (
           <span style={{ marginLeft: 8, fontSize: '0.85em', color: '#666' }}>
             {createdLabel}
