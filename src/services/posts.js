@@ -9,13 +9,7 @@ import {
   orderBy,
   serverTimestamp,
 } from 'firebase/firestore'
-import {
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  deleteObject,
-} from 'firebase/storage'
-import { db, storage } from '../firebase/firebase'
+import { db } from '../firebase/firebase'
 
 /**
  * Attaches a real-time listener to the posts collection ordered by createdAt descending.
@@ -52,52 +46,6 @@ export async function createTextPost(authorId, authorUsername, content) {
 }
 
 /**
- * Uploads an image file to Storage and resolves with the download URL.
- * @param {string} authorId
- * @param {string} postId  Pre-generated Firestore doc ID used as the Storage filename.
- * @param {File} file
- * @returns {Promise<string>} Download URL.
- */
-export function uploadImage(authorId, postId, file, onProgress) {
-  return new Promise((resolve, reject) => {
-    const storageRef = ref(storage, `posts/${authorId}/${postId}`)
-    const uploadTask = uploadBytesResumable(storageRef, file)
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        if (onProgress) {
-          const pct = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          onProgress(pct)
-        }
-      },
-      reject,
-      async () => {
-        const url = await getDownloadURL(uploadTask.snapshot.ref)
-        resolve(url)
-      }
-    )
-  })
-}
-
-/**
- * Creates a new photo post after the image has been uploaded.
- * @param {string} authorId
- * @param {string} authorUsername
- * @param {string} imageUrl  Download URL from uploadImage.
- */
-export async function createPhotoPost(authorId, authorUsername, imageUrl) {
-  return addDoc(collection(db, 'posts'), {
-    type: 'photo',
-    imageUrl,
-    content: null,
-    authorId,
-    authorUsername,
-    createdAt: serverTimestamp(),
-    updatedAt: null,
-  })
-}
-
-/**
  * Updates the text content of an existing text post.
  * @param {string} postId
  * @param {string} content  Must be 1–100 characters.
@@ -113,29 +61,16 @@ export async function updateTextPost(postId, content) {
 }
 
 /**
- * Replaces the image of a photo post (overwrites the same Storage path).
- * @param {string} authorId
- * @param {string} postId
- * @param {File} newFile
+ * Replaces the image of a photo post — disabled, Storage not available.
  */
-export async function replacePostImage(authorId, postId, newFile) {
-  const newUrl = await uploadImage(authorId, postId, newFile)
-  return updateDoc(doc(db, 'posts', postId), {
-    imageUrl: newUrl,
-    updatedAt: serverTimestamp(),
-  })
+export async function replacePostImage() {
+  throw new Error('Las publicaciones de foto no están disponibles.')
 }
 
 /**
- * Deletes a post document and, for photo posts, its Storage object.
+ * Deletes a post document.
  * @param {string} postId
- * @param {string} authorId
- * @param {string|null} imageUrl  If non-null the Storage file is also deleted.
  */
-export async function deletePost(postId, authorId, imageUrl) {
+export async function deletePost(postId) {
   await deleteDoc(doc(db, 'posts', postId))
-  if (imageUrl) {
-    const storageRef = ref(storage, `posts/${authorId}/${postId}`)
-    await deleteObject(storageRef)
-  }
 }

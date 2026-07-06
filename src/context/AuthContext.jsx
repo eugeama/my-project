@@ -27,7 +27,13 @@ export function AuthProvider({ children }) {
     return unsubscribe
   }, [])
 
-  const value = { currentUser, currentUsername, loading }
+  async function refreshProfile() {
+    if (!currentUser) return
+    const docSnap = await getDoc(doc(db, 'users', currentUser.uid))
+    setCurrentUsername(docSnap.exists() ? docSnap.data().username : null)
+  }
+
+  const value = { currentUser, currentUsername, loading, refreshProfile }
 
   return (
     <AuthContext.Provider value={value}>

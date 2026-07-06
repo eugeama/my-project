@@ -1,10 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { registerUser } from '../services/auth'
+import { useAuth } from '../context/AuthContext'
 import InlineError from '../components/InlineError'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const { currentUser, refreshProfile } = useAuth()
+
+  // Only redirect if already logged in when arriving at this page
+  useEffect(() => {
+    if (currentUser) navigate('/feed', { replace: true })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -36,7 +43,10 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await registerUser(email.trim(), password, username.trim())
-      navigate('/feed')
+      // registerUser has fully written users/{uid} by this point.
+      // refreshProfile re-reads the doc so currentUsername is ready before navigating.
+      await refreshProfile()
+      navigate('/feed', { replace: true })
     } catch (err) {
       if (err.code === 'auth/email-already-in-use') {
         setErrors((prev) => ({ ...prev, email: 'Este email ya está en uso' }))

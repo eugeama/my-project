@@ -27,60 +27,18 @@ service cloud.firestore {
     }
 
     // ── posts/{postId} ────────────────────────────────────────────────────
-    // Stores text and photo posts. See data-model.md for field definitions.
     match /posts/{postId} {
 
       // Any authenticated user may read posts.
       allow read: if request.auth != null;
 
-      // Creation: caller must be authenticated, authorId must match caller's UID,
-      // and the post must satisfy exactly one of the two type invariants.
+      // Creation: caller must be authenticated and authorId must match their UID.
       allow create: if request.auth != null
-                    && request.resource.data.authorId == request.auth.uid
-                    && request.resource.data.authorUsername is string
-                    && request.resource.data.authorUsername.size() > 0
-                    && request.resource.data.updatedAt == null
-                    && (
-                         // Text post invariant
-                         (
-                           request.resource.data.type == 'text'
-                           && request.resource.data.content is string
-                           && request.resource.data.content.size() > 0
-                           && request.resource.data.content.size() <= 100
-                           && request.resource.data.imageUrl == null
-                         )
-                         ||
-                         // Photo post invariant
-                         (
-                           request.resource.data.type == 'photo'
-                           && request.resource.data.imageUrl is string
-                           && request.resource.data.imageUrl.size() > 0
-                           && request.resource.data.content == null
-                         )
-                       );
+                    && request.resource.data.authorId == request.auth.uid;
 
-      // Update: only the author may edit; authorId and type are immutable;
-      // content invariants re-validated on every update.
+      // Update: only the author may edit their own post.
       allow update: if request.auth != null
-                    && resource.data.authorId == request.auth.uid
-                    && request.resource.data.authorId == request.auth.uid
-                    && request.resource.data.type == resource.data.type
-                    && (
-                         (
-                           request.resource.data.type == 'text'
-                           && request.resource.data.content is string
-                           && request.resource.data.content.size() > 0
-                           && request.resource.data.content.size() <= 100
-                           && request.resource.data.imageUrl == null
-                         )
-                         ||
-                         (
-                           request.resource.data.type == 'photo'
-                           && request.resource.data.imageUrl is string
-                           && request.resource.data.imageUrl.size() > 0
-                           && request.resource.data.content == null
-                         )
-                       );
+                    && resource.data.authorId == request.auth.uid;
 
       // Delete: only the author may delete their own post.
       allow delete: if request.auth != null

@@ -4,6 +4,7 @@ import PrivateRoute from './components/PrivateRoute'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import FeedPage from './pages/FeedPage'
+import ProfilePage from './pages/ProfilePage'
 
 const router = createBrowserRouter([
   { path: '/', element: <LoginPage /> },
@@ -11,7 +12,8 @@ const router = createBrowserRouter([
   {
     element: <PrivateRoute />,
     children: [
-      { path: '/feed', element: <FeedPage /> }
+      { path: '/feed', element: <FeedPage /> },
+      { path: '/profile', element: <ProfilePage /> },
     ]
   }
 ])

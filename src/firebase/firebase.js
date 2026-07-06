@@ -5,7 +5,6 @@ import {
   setPersistence,
 } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
-import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,7 +19,6 @@ const app = initializeApp(firebaseConfig)
 
 export const auth = getAuth(app)
 export const db = getFirestore(app)
-export const storage = getStorage(app)
 
 // Session-scoped persistence: session clears on browser close (spec clarification Q3)
 setPersistence(auth, browserSessionPersistence)

@@ -1,12 +1,18 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { logoutUser } from '../services/auth'
 import PostFeed from '../components/PostFeed'
-import CreatePostForm from '../components/CreatePostForm'
 
 export default function FeedPage() {
   const navigate = useNavigate()
-  const { currentUser, currentUsername } = useAuth()
+  const { currentUser, currentUsername, refreshProfile } = useAuth()
+
+  // Re-read users/{uid} every time this page mounts — ensures currentUsername
+  // is always up to date (covers fresh registration and username changes)
+  useEffect(() => {
+    refreshProfile()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleLogout() {
     await logoutUser()
@@ -19,13 +25,13 @@ export default function FeedPage() {
         <h1 style={{ margin: 0 }}>RetroSocial</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {currentUsername && (
-            <span style={{ fontSize: '0.9em', color: '#555' }}>@{currentUsername}</span>
+            <button onClick={() => navigate('/profile')} style={{ fontWeight: 600 }}>
+              {currentUsername}
+            </button>
           )}
           <button onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </header>
-
-      <CreatePostForm currentUser={currentUser} currentUsername={currentUsername} />
 
       <PostFeed currentUser={currentUser} />
     </div>

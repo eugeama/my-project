@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { loginUser } from '../services/auth'
+import { useAuth } from '../context/AuthContext'
 import InlineError from '../components/InlineError'
 
 // Maps Firebase Auth error codes to Spanish user-facing messages
@@ -21,6 +22,13 @@ function mapAuthError(code) {
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { currentUser } = useAuth()
+
+  // Redirect as soon as auth context has a user (covers both fresh login and
+  // arriving at "/" while already logged in)
+  useEffect(() => {
+    if (currentUser) navigate('/feed', { replace: true })
+  }, [currentUser, navigate])
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -50,7 +58,8 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await loginUser(email.trim(), password)
-      navigate('/feed')
+      // Navigation is handled by the useEffect above once onAuthStateChanged
+      // fires and currentUser is set in context
     } catch (err) {
       setSubmitError(mapAuthError(err.code))
     } finally {

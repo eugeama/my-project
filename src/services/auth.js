@@ -3,10 +3,14 @@ import {
   signInWithEmailAndPassword,
   signOut,
   deleteUser,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth'
 import {
   doc,
   setDoc,
+  updateDoc,
   getDocs,
   collection,
   query,
@@ -86,4 +90,29 @@ export async function loginUser(email, password) {
  */
 export async function logoutUser() {
   return signOut(auth)
+}
+
+/**
+ * Updates the username of an existing user.
+ * Checks uniqueness first, then updates the Firestore users/{uid} document.
+ * @param {string} uid
+ * @param {string} newUsername
+ */
+export async function updateUsername(uid, newUsername) {
+  const usernameQuery = query(collection(db, 'users'), where('username', '==', newUsername))
+  const snapshot = await getDocs(usernameQuery)
+  if (!snapshot.empty) throw { code: 'username-already-taken' }
+  await updateDoc(doc(db, 'users', uid), { username: newUsername })
+}
+
+/**
+ * Re-authenticates the user with their current password, then sets a new password.
+ * @param {import('firebase/auth').User} user
+ * @param {string} currentPassword
+ * @param {string} newPassword
+ */
+export async function updateUserPassword(user, currentPassword, newPassword) {
+  const credential = EmailAuthProvider.credential(user.email, currentPassword)
+  await reauthenticateWithCredential(user, credential)
+  await updatePassword(user, newPassword)
 }

@@ -41,7 +41,7 @@ export default function PostCard({ post, currentUser }) {
     setDeleting(true)
     setDeleteError('')
     try {
-      await deletePost(post.id, post.authorId, post.imageUrl)
+      await deletePost(post.id)
       // Card disappears from feed via onSnapshot — no local state reset needed
     } catch (err) {
       setDeleteError('Error al eliminar. Intentá de nuevo.')
@@ -54,7 +54,7 @@ export default function PostCard({ post, currentUser }) {
     <div style={{ border: '1px solid #ccc', borderRadius: 8, padding: '12px 16px', marginBottom: 12 }}>
       {/* Author + timestamps */}
       <div style={{ marginBottom: 8 }}>
-        <strong>@{post.authorUsername}</strong>
+        <strong>{post.authorUsername}</strong>
         {createdLabel && (
           <span style={{ marginLeft: 8, fontSize: '0.85em', color: '#666' }}>
             {createdLabel}
