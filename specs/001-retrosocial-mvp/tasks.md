@@ -22,14 +22,14 @@
 
 **Note on existing file**: `src/firebaseConfig.js` contains hardcoded Firebase credentials. T007–T008 replace it with an env-var–driven module.
 
-- [ ] T001 Update `package.json`: add `react-dom`, `react-router-dom` to `dependencies`; add `vite` and `@vitejs/plugin-react` to `devDependencies`; add `scripts`: `"dev": "vite"`, `"build": "vite build"`, `"preview": "vite preview"`
-- [ ] T002 Create `vite.config.js` at project root using content from `contracts/hosting.md` (minimal Vite config with `@vitejs/plugin-react` plugin)
-- [ ] T003 Create `index.html` at project root as the Vite entry point: `<div id="root"></div>` + `<script type="module" src="/src/main.jsx"></script>`
-- [ ] T004 Create `src/main.jsx`: import React, ReactDOM and `App`; call `ReactDOM.createRoot(document.getElementById('root')).render(<App />)`
-- [ ] T005 [P] Create `.env.example` at project root with six empty `VITE_FIREBASE_*` keys: `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
-- [ ] T006 [P] Create/update `.gitignore` at project root: add entries for `.env`, `.env.production`, `dist/`, `node_modules/`
-- [ ] T007 Create `src/firebase/firebase.js`: call `initializeApp` using `import.meta.env.VITE_FIREBASE_*` values; call `setPersistence(auth, browserSessionPersistence)`; export `auth`, `db` (getFirestore), `storage` (getStorage). Import only modular SDK functions (`firebase/app`, `firebase/auth`, `firebase/firestore`, `firebase/storage`)
-- [ ] T008 Migrate credentials: (a) create `.env` at project root copying the six Firebase values from `src/firebaseConfig.js`; (b) add `src/firebaseConfig.js` to `.gitignore`; (c) delete `src/firebaseConfig.js`
+- [x] T001 Update `package.json`: add `react-dom`, `react-router-dom` to `dependencies`; add `vite` and `@vitejs/plugin-react` to `devDependencies`; add `scripts`: `"dev": "vite"`, `"build": "vite build"`, `"preview": "vite preview"`
+- [x] T002 Create `vite.config.js` at project root using content from `contracts/hosting.md` (minimal Vite config with `@vitejs/plugin-react` plugin)
+- [x] T003 Create `index.html` at project root as the Vite entry point: `<div id="root"></div>` + `<script type="module" src="/src/main.jsx"></script>`
+- [x] T004 Create `src/main.jsx`: import React, ReactDOM and `App`; call `ReactDOM.createRoot(document.getElementById('root')).render(<App />)`
+- [x] T005 [P] Create `.env.example` at project root with six empty `VITE_FIREBASE_*` keys: `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
+- [x] T006 [P] Create/update `.gitignore` at project root: add entries for `.env`, `.env.production`, `dist/`, `node_modules/`
+- [x] T007 Create `src/firebase/firebase.js`: call `initializeApp` using `import.meta.env.VITE_FIREBASE_*` values; call `setPersistence(auth, browserSessionPersistence)`; export `auth`, `db` (getFirestore), `storage` (getStorage). Import only modular SDK functions (`firebase/app`, `firebase/auth`, `firebase/firestore`, `firebase/storage`)
+- [x] T008 Migrate credentials: (a) create `.env` at project root copying the six Firebase values from `src/firebaseConfig.js`; (b) add `src/firebaseConfig.js` to `.gitignore`; (c) delete `src/firebaseConfig.js`
 
 **Checkpoint**: `npm install && npm run dev` starts without errors; `src/firebase/firebase.js` exports are importable; no hardcoded credentials remain in tracked files.
 

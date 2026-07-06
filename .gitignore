@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment variables — never commit real credentials
+.env
+.env.production
+.env.local
+.env.*.local
+
+# Existing hardcoded config (replaced by src/firebase/firebase.js + .env)
+src/firebaseConfig.js
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.tmp
