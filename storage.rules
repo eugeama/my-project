@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Images are stored at posts/{authorId}/{postId}.
+    // The {userId} wildcard is the Firebase Auth UID embedded in the path.
+    match /posts/{userId}/{postId} {
+
+      // Any authenticated user may read (view) images.
+      allow read: if request.auth != null;
+
+      // Write (upload or replace): caller must own the path,
+      // file must be ≤ 5 MB, MIME type must be a supported image format.
+      allow write: if request.auth != null
+                   && request.auth.uid == userId
+                   && request.resource.size <= 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/(jpeg|png|gif|webp)');
+
+      // Delete: only the owner of the path may delete the image.
+      allow delete: if request.auth != null
+                    && request.auth.uid == userId;
+    }
+  }
+}

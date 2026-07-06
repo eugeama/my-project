@@ -1,0 +1,90 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── users/{userId} ────────────────────────────────────────────────────
+    // Stores display username and email for each registered user.
+    // Document ID equals Firebase Auth UID.
+    match /users/{userId} {
+
+      // Any authenticated user may read user documents.
+      allow read: if request.auth != null;
+
+      // Only the owner may create their own document.
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.username is string
+                    && request.resource.data.username.size() > 0
+                    && request.resource.data.email is string;
+
+      // Only the owner may update their own document.
+      allow update: if request.auth != null
+                    && request.auth.uid == userId;
+
+      // Deletion is not permitted.
+      allow delete: if false;
+    }
+
+    // ── posts/{postId} ────────────────────────────────────────────────────
+    // Stores text and photo posts. See data-model.md for field definitions.
+    match /posts/{postId} {
+
+      // Any authenticated user may read posts.
+      allow read: if request.auth != null;
+
+      // Creation: caller must be authenticated, authorId must match caller's UID,
+      // and the post must satisfy exactly one of the two type invariants.
+      allow create: if request.auth != null
+                    && request.resource.data.authorId == request.auth.uid
+                    && request.resource.data.authorUsername is string
+                    && request.resource.data.authorUsername.size() > 0
+                    && request.resource.data.updatedAt == null
+                    && (
+                         // Text post invariant
+                         (
+                           request.resource.data.type == 'text'
+                           && request.resource.data.content is string
+                           && request.resource.data.content.size() > 0
+                           && request.resource.data.content.size() <= 100
+                           && request.resource.data.imageUrl == null
+                         )
+                         ||
+                         // Photo post invariant
+                         (
+                           request.resource.data.type == 'photo'
+                           && request.resource.data.imageUrl is string
+                           && request.resource.data.imageUrl.size() > 0
+                           && request.resource.data.content == null
+                         )
+                       );
+
+      // Update: only the author may edit; authorId and type are immutable;
+      // content invariants re-validated on every update.
+      allow update: if request.auth != null
+                    && resource.data.authorId == request.auth.uid
+                    && request.resource.data.authorId == request.auth.uid
+                    && request.resource.data.type == resource.data.type
+                    && (
+                         (
+                           request.resource.data.type == 'text'
+                           && request.resource.data.content is string
+                           && request.resource.data.content.size() > 0
+                           && request.resource.data.content.size() <= 100
+                           && request.resource.data.imageUrl == null
+                         )
+                         ||
+                         (
+                           request.resource.data.type == 'photo'
+                           && request.resource.data.imageUrl is string
+                           && request.resource.data.imageUrl.size() > 0
+                           && request.resource.data.content == null
+                         )
+                       );
+
+      // Delete: only the author may delete their own post.
+      allow delete: if request.auth != null
+                    && resource.data.authorId == request.auth.uid;
+    }
+  }
+}
