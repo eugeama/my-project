@@ -40,7 +40,21 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] **Art. I — Scope**: Feature is within scope (not in the explicit out-of-scope list: no
+  comments/likes/reactions, no social graph, no algorithmic feed, no notifications, no galleries,
+  no MySpace-style profiles). If in doubt, constitution amendment required before proceeding.
+- [ ] **Art. VI — Stack**: Implementation uses React (SPA) + Firebase Auth + Firestore + Storage
+  only. No custom backend (Node/Express, etc.) introduced without explicit constitutional approval.
+- [ ] **Art. III — Post model**: Post types are mutually exclusive — text-only (≤ 100 chars, no
+  rich formatting) OR photo-only (single image, no associated text). No mixed-type posts.
+- [ ] **Art. IV + VII — Ownership**: Edit/delete controls are hidden in the UI for non-owners AND
+  Firestore/Storage rules independently enforce `request.auth.uid === userId`. Client-side checks
+  are UX only, never the sole barrier.
+- [ ] **Art. II — Auth guard**: All protected routes validate active session on the client (React
+  Router guard) AND via Firestore/Storage security rules. Unauthenticated users reach only `/`
+  (login) and `/register`.
+- [ ] **Art. VIII — Simplicity**: No new libraries, architectural patterns, or abstractions added
+  beyond what is strictly necessary to implement the feature.
 
 ## Project Structure
 

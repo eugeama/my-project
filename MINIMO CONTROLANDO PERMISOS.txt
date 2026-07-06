@@ -1,0 +1,32 @@
+=============================================================
+MINIMO (CONTROLANDO PERMISOS):
+no cualquiera puede editar los registros de la base de datos
+cada usuario solo puede editar lo suyo
+-login(mail, contraesña) 
+-un ABM (pueden haber mas)
+=============================================================
+
+=============================================================
+TECNOLOGÍAS
+
+Aplicacion react
+backend con firebase directamente (SDK de firebase desde react)
+
+autenthication con firebase
+firestore para la base de datos desde firebase
+reglas de fireSTORE para definir reglas/permisos
+=============================================================
+
+=============================================================
+HOSTEO
+
+firebase HOSTING
+nos va a dar un dominio para acceder a la página
+
+COMO SUBIR (MINIMO):
+correr comando firebase deploy para deployar a firebase host
+
+GITHUB ACTIONS:
+cada vez q se hace un push despliega automaticamente a firebase
+
+=============================================================
