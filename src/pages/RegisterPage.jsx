@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { registerUser } from '../services/auth'
+import InlineError from '../components/InlineError'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -62,7 +63,7 @@ export default function RegisterPage() {
             onChange={(e) => setUsername(e.target.value)}
             disabled={loading}
           />
-          {errors.username && <span style={{ color: 'red' }}>{errors.username}</span>}
+          {errors.username && <InlineError message={errors.username} />}
         </div>
 
         <div>
@@ -74,7 +75,7 @@ export default function RegisterPage() {
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
           />
-          {errors.email && <span style={{ color: 'red' }}>{errors.email}</span>}
+          {errors.email && <InlineError message={errors.email} />}
         </div>
 
         <div>
@@ -86,10 +87,10 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
           />
-          {errors.password && <span style={{ color: 'red' }}>{errors.password}</span>}
+          {errors.password && <InlineError message={errors.password} />}
         </div>
 
-        {submitError && <p style={{ color: 'red' }}>{submitError}</p>}
+        <InlineError message={submitError} />
 
         <button type="submit" disabled={loading}>
           {loading ? 'Registrando...' : 'Crear cuenta'}

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { logoutUser } from '../services/auth'
 import PostFeed from '../components/PostFeed'
-// CreatePostForm is mounted here in T029 (Phase 6)
+import CreatePostForm from '../components/CreatePostForm'
 
 export default function FeedPage() {
   const navigate = useNavigate()
@@ -25,7 +25,7 @@ export default function FeedPage() {
         </div>
       </header>
 
-      {/* CreatePostForm will be rendered here in Phase 6 (T029) */}
+      <CreatePostForm currentUser={currentUser} currentUsername={currentUsername} />
 
       <PostFeed currentUser={currentUser} />
     </div>

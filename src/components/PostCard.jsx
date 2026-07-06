@@ -1,3 +1,7 @@
+import { useState } from 'react'
+import EditPostForm from './EditPostForm'
+import { deletePost } from '../services/posts'
+
 /**
  * Formats a Firestore Timestamp (or null) to a localised Spanish date+time string.
  * Returns null if the timestamp hasn't resolved yet (serverTimestamp() is null
@@ -22,13 +26,29 @@ function formatDate(timestamp) {
  *   post        — Firestore post document with id, type, content, imageUrl,
  *                 authorId, authorUsername, createdAt, updatedAt
  *   currentUser — Firebase Auth User object (from AuthContext)
- *   onEdit      — called when the Edit button is clicked (wired in Phase 8 / T035)
- *   onDelete    — called when Delete → Confirm is clicked (wired in Phase 9 / T038)
  */
-export default function PostCard({ post, currentUser, onEdit, onDelete }) {
+export default function PostCard({ post, currentUser }) {
+  const [editing, setEditing] = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
   const isOwner = currentUser && post.authorId === currentUser.uid
   const createdLabel = formatDate(post.createdAt)
   const updatedLabel = post.updatedAt ? formatDate(post.updatedAt) : null
+
+  async function handleConfirmDelete() {
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      await deletePost(post.id, post.authorId, post.imageUrl)
+      // Card disappears from feed via onSnapshot — no local state reset needed
+    } catch (err) {
+      setDeleteError('Error al eliminar. Intentá de nuevo.')
+      setDeleting(false)
+      setConfirming(false)
+    }
+  }
 
   return (
     <div style={{ border: '1px solid #ccc', borderRadius: 8, padding: '12px 16px', marginBottom: 12 }}>
@@ -59,11 +79,32 @@ export default function PostCard({ post, currentUser, onEdit, onDelete }) {
         />
       )}
 
+      {/* Inline edit form — shown when owner clicks Editar */}
+      {editing && (
+        <EditPostForm post={post} onClose={() => setEditing(false)} />
+      )}
+
+      {/* Inline delete confirmation — shown when owner clicks Eliminar (FR-022) */}
+      {confirming && (
+        <div style={{ marginTop: 10, padding: '8px 10px', background: '#fff3f3', borderRadius: 6 }}>
+          <p style={{ margin: '0 0 8px', fontSize: '0.9em' }}>¿Eliminar este posteo?</p>
+          {deleteError && <p style={{ color: 'red', margin: '0 0 6px', fontSize: '0.85em' }}>{deleteError}</p>}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={handleConfirmDelete} disabled={deleting}>
+              {deleting ? 'Eliminando...' : 'Confirmar'}
+            </button>
+            <button onClick={() => { setConfirming(false); setDeleteError('') }} disabled={deleting}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Owner controls — absent for foreign posts (FR-018 / FR-023) */}
-      {isOwner && (
+      {isOwner && !editing && !confirming && (
         <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
-          <button onClick={() => onEdit && onEdit(post)}>Editar</button>
-          <button onClick={() => onDelete && onDelete(post)}>Eliminar</button>
+          <button onClick={() => setEditing(true)}>Editar</button>
+          <button onClick={() => setConfirming(true)}>Eliminar</button>
         </div>
       )}
     </div>

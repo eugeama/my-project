@@ -105,9 +105,9 @@
 
 **Independent Test**: Log in, click "Publicar texto", type ≤100 chars, submit → post appears in feed with author username and timestamp. Type >100 chars → submit blocked with inline error.
 
-- [ ] T027 [US3] Add `createTextPost(authorId, authorUsername, content)` to `src/services/posts.js`: validate `content.length <= 100` (throw if not); call `addDoc(collection(db, 'posts'), { type: 'text', content, imageUrl: null, authorId, authorUsername, createdAt: serverTimestamp(), updatedAt: null })`
-- [ ] T028 [US3] Create `src/components/CreatePostForm.jsx`: render two explicit action buttons "Publicar texto" and "Publicar foto" with no default selection (FR-008/FR-011); when "Publicar texto" is selected show a `<textarea>` with a live character counter (`{content.length}/100`); disable/block submit if content is empty or exceeds 100 chars (FR-010); on submit call `createTextPost` with `currentUser.uid` and `authorUsername` (read from Firestore `users/{uid}` doc or stored in context); show loading state during submit; show inline error on failure; reset form on success
-- [ ] T029 [US3] Mount `<CreatePostForm>` inside `src/pages/FeedPage.jsx` above `<PostFeed>`, passing `currentUser`
+- [x] T027 [US3] Add `createTextPost(authorId, authorUsername, content)` to `src/services/posts.js`: validate `content.length <= 100` (throw if not); call `addDoc(collection(db, 'posts'), { type: 'text', content, imageUrl: null, authorId, authorUsername, createdAt: serverTimestamp(), updatedAt: null })`
+- [x] T028 [US3] Create `src/components/CreatePostForm.jsx`: render two explicit action buttons "Publicar texto" and "Publicar foto" with no default selection (FR-008/FR-011); when "Publicar texto" is selected show a `<textarea>` with a live character counter (`{content.length}/100`); disable/block submit if content is empty or exceeds 100 chars (FR-010); on submit call `createTextPost` with `currentUser.uid` and `authorUsername` (read from Firestore `users/{uid}` doc or stored in context); show loading state during submit; show inline error on failure; reset form on success
+- [x] T029 [US3] Mount `<CreatePostForm>` inside `src/pages/FeedPage.jsx` above `<PostFeed>`, passing `currentUser`
 
 **Checkpoint**: Text posts appear in the feed in real-time after submission. Posts >100 chars are rejected with an inline error before any Firestore write. Attempting to submit without selecting a type is blocked.
 
@@ -119,9 +119,9 @@
 
 **Independent Test**: Log in, click "Publicar foto", select a valid image, submit → post appears in feed with the image. Select an unsupported format → blocked. Select a file >5 MB → blocked. Submit without selecting file → blocked.
 
-- [ ] T030 [US4] Add `uploadImage(authorId, postId, file)` and `createPhotoPost(authorId, authorUsername, imageUrl)` to `src/services/posts.js`: `uploadImage` uses `uploadBytesResumable(ref(storage, \`posts/${authorId}/${postId}\`), file)` and resolves with `getDownloadURL` on completion; `createPhotoPost` calls `addDoc` with `{ type: 'photo', imageUrl, content: null, authorId, authorUsername, createdAt: serverTimestamp(), updatedAt: null }`
-- [ ] T031 [US4] Extend `src/components/CreatePostForm.jsx` with the photo-post path: when "Publicar foto" is selected render `<input type="file" accept="image/jpeg,image/png,image/gif,image/webp">`; on file selection validate MIME type against allowed list and size ≤ 5 MB — show inline error for format (FR-027) or size (FR-027) violations before any upload; generate a `postId` via `doc(collection(db, 'posts')).id`; on submit call `uploadImage` then `createPhotoPost`; show upload progress indicator during `uploadBytesResumable`; show inline error on network/permission failure; block submit if no file selected (FR-013)
-- [ ] T032 [P] [US4] Verify `src/components/PostCard.jsx` renders photo posts correctly (type=`'photo'` → `<img src={imageUrl}>` with alt text); update if the implementation from T023 used a placeholder
+- [x] T030 [US4] Add `uploadImage(authorId, postId, file)` and `createPhotoPost(authorId, authorUsername, imageUrl)` to `src/services/posts.js`: `uploadImage` uses `uploadBytesResumable(ref(storage, \`posts/${authorId}/${postId}\`), file)` and resolves with `getDownloadURL` on completion; `createPhotoPost` calls `addDoc` with `{ type: 'photo', imageUrl, content: null, authorId, authorUsername, createdAt: serverTimestamp(), updatedAt: null }`
+- [x] T031 [US4] Extend `src/components/CreatePostForm.jsx` with the photo-post path: when "Publicar foto" is selected render `<input type="file" accept="image/jpeg,image/png,image/gif,image/webp">`; on file selection validate MIME type against allowed list and size ≤ 5 MB — show inline error for format (FR-027) or size (FR-027) violations before any upload; generate a `postId` via `doc(collection(db, 'posts')).id`; on submit call `uploadImage` then `createPhotoPost`; show upload progress indicator during `uploadBytesResumable`; show inline error on network/permission failure; block submit if no file selected (FR-013)
+- [x] T032 [P] [US4] Verify `src/components/PostCard.jsx` renders photo posts correctly (type=`'photo'` → `<img src={imageUrl}>` with alt text); update if the implementation from T023 used a placeholder
 
 **Checkpoint**: Photo posts appear in the feed with the image displayed. Invalid format and oversized files are rejected before upload starts. No file selected blocks submission. The photo card has no text field.
 
@@ -133,9 +133,9 @@
 
 **Independent Test**: Create a text post; edit to valid content → feed shows updated text + "editado" label. Edit to >100 chars → blocked. Create a photo post; replace image → feed shows new image.
 
-- [ ] T033 [US6] Add `updateTextPost(postId, content)` and `replacePostImage(authorId, postId, newFile)` to `src/services/posts.js`: `updateTextPost` validates `content.length <= 100` then calls `updateDoc(doc(db, 'posts', postId), { content, updatedAt: serverTimestamp() })`; `replacePostImage` re-uploads to the same Storage path `posts/${authorId}/${postId}` (overwrites), gets the new download URL, then calls `updateDoc` with `{ imageUrl: newUrl, updatedAt: serverTimestamp() }`
-- [ ] T034 [US6] Create `src/components/EditPostForm.jsx`: accept `post` and `onClose` props; for `type='text'` render a textarea pre-filled with `post.content`, live counter, same ≤100 char validation, submit calls `updateTextPost`; for `type='photo'` render a file picker with the same format/size validation as CreatePostForm, submit calls `replacePostImage`; show loading during save; show inline error on failure; call `onClose` on success
-- [ ] T035 [US6] Wire the Edit button in `src/components/PostCard.jsx` (rendered only for `post.authorId === currentUser.uid`): clicking shows `<EditPostForm>` (inline or via a local `editing` state toggle); passing `post` and an `onClose` that resets `editing` to false
+- [x] T033 [US6] Add `updateTextPost(postId, content)` and `replacePostImage(authorId, postId, newFile)` to `src/services/posts.js`: `updateTextPost` validates `content.length <= 100` then calls `updateDoc(doc(db, 'posts', postId), { content, updatedAt: serverTimestamp() })`; `replacePostImage` re-uploads to the same Storage path `posts/${authorId}/${postId}` (overwrites), gets the new download URL, then calls `updateDoc` with `{ imageUrl: newUrl, updatedAt: serverTimestamp() }`
+- [x] T034 [US6] Create `src/components/EditPostForm.jsx`: accept `post` and `onClose` props; for `type='text'` render a textarea pre-filled with `post.content`, live counter, same ≤100 char validation, submit calls `updateTextPost`; for `type='photo'` render a file picker with the same format/size validation as CreatePostForm, submit calls `replacePostImage`; show loading during save; show inline error on failure; call `onClose` on success
+- [x] T035 [US6] Wire the Edit button in `src/components/PostCard.jsx` (rendered only for `post.authorId === currentUser.uid`): clicking shows `<EditPostForm>` (inline or via a local `editing` state toggle); passing `post` and an `onClose` that resets `editing` to false
 - ~~T036~~ *(absorbed into T023)* — the `updatedAt` "editado el {date}" label (FR-021) is fully specified in T023; no additional work on `PostCard.jsx` is required here.
 
 **Checkpoint**: Own posts can be edited. Edited text posts respect the 100-char limit. Edited photo posts show the new image. `updatedAt` appears in the card after editing. Edit controls are absent for foreign posts.
@@ -148,8 +148,8 @@
 
 **Independent Test**: Click Delete on own post → confirmation dialog appears. Click Cancel → post remains. Click Delete again → Confirm → post gone from feed. Repeat for a photo post and verify the Storage object is also deleted.
 
-- [ ] T037 [US7] Add `deletePost(postId, authorId, imageUrl)` to `src/services/posts.js`: call `deleteDoc(doc(db, 'posts', postId))`; if `imageUrl` is non-null also call `deleteObject(ref(storage, \`posts/${authorId}/${postId}\`))` to remove the Storage file
-- [ ] T038 [US7] Add Delete button + confirmation flow to `src/components/PostCard.jsx`: render Delete button only for `post.authorId === currentUser.uid`; clicking sets local state `confirming = true` and shows an inline confirmation message "¿Eliminar este posteo?" with "Confirmar" and "Cancelar" buttons (FR-022); "Confirmar" calls `deletePost(post.id, post.authorId, post.imageUrl)` and resets state; "Cancelar" resets `confirming` to false with no side effects
+- [x] T037 [US7] Add `deletePost(postId, authorId, imageUrl)` to `src/services/posts.js`: call `deleteDoc(doc(db, 'posts', postId))`; if `imageUrl` is non-null also call `deleteObject(ref(storage, \`posts/${authorId}/${postId}\`))` to remove the Storage file
+- [x] T038 [US7] Add Delete button + confirmation flow to `src/components/PostCard.jsx`: render Delete button only for `post.authorId === currentUser.uid`; clicking sets local state `confirming = true` and shows an inline confirmation message "¿Eliminar este posteo?" with "Confirmar" and "Cancelar" buttons (FR-022); "Confirmar" calls `deletePost(post.id, post.authorId, post.imageUrl)` and resets state; "Cancelar" resets `confirming` to false with no side effects
 
 **Checkpoint**: Own posts deletable with confirmation. Cancelling the dialog leaves the post unchanged. Photo post deletion removes both the Firestore document and the Storage object. Delete controls absent for foreign posts.
 
@@ -161,7 +161,7 @@
 
 **Independent Test**: Log in; click logout → redirected to `/`. Navigate to `/feed` → redirected to `/`.
 
-- [ ] T039 [US8] Verify logout is fully wired in `src/pages/FeedPage.jsx` (implemented in T025): confirm the logout button calls `logoutUser()` then `navigate('/', { replace: true })`; confirm that after logout `PrivateRoute` (T010) blocks re-entry to `/feed`; no new code should be required if T025 was implemented correctly — this task is a functional checkpoint, not a new implementation.
+- [x] T039 [US8] Verify logout is fully wired in `src/pages/FeedPage.jsx` (implemented in T025): confirm the logout button calls `logoutUser()` then `navigate('/', { replace: true })`; confirm that after logout `PrivateRoute` (T010) blocks re-entry to `/feed`; no new code should be required if T025 was implemented correctly — this task is a functional checkpoint, not a new implementation.
 
 **Checkpoint**: Logout button ends the session. Navigating to any protected route after logout redirects to `/`. Closing the browser without logging out also clears the session (verified by browserSessionPersistence from T007).
 
@@ -171,10 +171,10 @@
 
 **Purpose**: Consistency, UX finish, and production deployment.
 
-- [ ] T040 [P] Add a reusable inline error display element to all forms (`LoginPage`, `RegisterPage`, `CreatePostForm`, `EditPostForm`): consistent red error text rendered below the submit button using a shared CSS class or inline style — ensures all FR error messages (FR-002, FR-004, FR-010, FR-013, FR-027, FR-028) are visually consistent
-- [ ] T041 [P] Add a reusable loading spinner or disabled-state indicator: used in `PrivateRoute` (auth state resolving), `CreatePostForm` (image upload), `EditPostForm` (save in progress) — prevents double-submit and communicates async operations to the user
+- [x] T040 [P] Add a reusable inline error display element to all forms (`LoginPage`, `RegisterPage`, `CreatePostForm`, `EditPostForm`): consistent red error text rendered below the submit button using a shared CSS class or inline style — ensures all FR error messages (FR-002, FR-004, FR-010, FR-013, FR-027, FR-028) are visually consistent
+- [x] T041 [P] Add a reusable loading spinner or disabled-state indicator: used in `PrivateRoute` (auth state resolving), `CreatePostForm` (image upload), `EditPostForm` (save in progress) — prevents double-submit and communicates async operations to the user
 - [ ] T042 Deploy Security Rules: run `firebase deploy --only firestore:rules,storage`; verify in Firebase Console that Firestore rules and Storage rules show the correct last-deployed timestamp
-- [ ] T043 Create `.env.production` at project root (gitignored): copy the six `VITE_FIREBASE_*` values from `.env`; this file is read automatically by `vite build` and must be present before T044
+- [x] T043 Create `.env.production` at project root (gitignored): copy the six `VITE_FIREBASE_*` values from `.env`; this file is read automatically by `vite build` and must be present before T044
 - [ ] T044 Production build and deploy to Firebase Hosting: run `npm run build` (outputs to `dist/`); run `firebase deploy --only hosting`; confirm the Hosting URL printed by the CLI loads the app
 - [ ] T045 Configure Firebase Auth Authorized Domains: open Firebase Console → Authentication → Settings → Authorized domains; add `<project-id>.web.app` if not already listed; without this step `signInWithEmailAndPassword` will fail on the live URL with `auth/unauthorized-domain`
 - [ ] T046 Run quickstart.md validation: execute all 10 scenarios from `specs/001-retrosocial-mvp/quickstart.md` against the live `*.web.app` URL; mark each scenario pass/fail; any failure is a blocker before the MVP is considered complete

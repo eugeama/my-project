@@ -58,13 +58,18 @@ export async function createTextPost(authorId, authorUsername, content) {
  * @param {File} file
  * @returns {Promise<string>} Download URL.
  */
-export function uploadImage(authorId, postId, file) {
+export function uploadImage(authorId, postId, file, onProgress) {
   return new Promise((resolve, reject) => {
     const storageRef = ref(storage, `posts/${authorId}/${postId}`)
     const uploadTask = uploadBytesResumable(storageRef, file)
     uploadTask.on(
       'state_changed',
-      null,
+      (snapshot) => {
+        if (onProgress) {
+          const pct = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          onProgress(pct)
+        }
+      },
       reject,
       async () => {
         const url = await getDownloadURL(uploadTask.snapshot.ref)

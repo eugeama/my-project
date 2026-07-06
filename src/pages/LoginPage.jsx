@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { loginUser } from '../services/auth'
+import InlineError from '../components/InlineError'
 
 // Maps Firebase Auth error codes to Spanish user-facing messages
 function mapAuthError(code) {
@@ -70,7 +71,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
           />
-          {errors.email && <span style={{ color: 'red' }}>{errors.email}</span>}
+          {errors.email && <InlineError message={errors.email} />}
         </div>
 
         <div>
@@ -82,10 +83,10 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
           />
-          {errors.password && <span style={{ color: 'red' }}>{errors.password}</span>}
+          {errors.password && <InlineError message={errors.password} />}
         </div>
 
-        {submitError && <p style={{ color: 'red' }}>{submitError}</p>}
+        <InlineError message={submitError} />
 
         <button type="submit" disabled={loading}>
           {loading ? 'Ingresando...' : 'Iniciar sesión'}

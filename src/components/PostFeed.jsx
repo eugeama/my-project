@@ -7,10 +7,8 @@ import PostCard from './PostCard'
  *
  * Props:
  *   currentUser — Firebase Auth User object (from AuthContext)
- *   onEdit      — forwarded to each PostCard (wired in Phase 8 / T035)
- *   onDelete    — forwarded to each PostCard (wired in Phase 9 / T038)
  */
-export default function PostFeed({ currentUser, onEdit, onDelete }) {
+export default function PostFeed({ currentUser }) {
   const [posts, setPosts] = useState([])
 
   useEffect(() => {
@@ -35,8 +33,6 @@ export default function PostFeed({ currentUser, onEdit, onDelete }) {
           key={post.id}
           post={post}
           currentUser={currentUser}
-          onEdit={onEdit}
-          onDelete={onDelete}
         />
       ))}
     </div>
