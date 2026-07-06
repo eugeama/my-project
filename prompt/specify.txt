@@ -1,0 +1,32 @@
+Sistema de red social simple donde los usuarios pueden registrarse, iniciar sesión y publicar contenido corto.
+
+REGISTRO E INICIO DE SESIÓN
+- Un usuario se registra con: email, contraseña y nombre de usuario.
+- Un usuario inicia sesión con: email y contraseña.
+- Un usuario no autenticado solo puede acceder a las pantallas de registro e inicio de sesión. No tiene acceso a ninguna otra funcionalidad del sistema (ni siquiera de solo lectura).
+
+POSTEOS
+- Un usuario autenticado puede crear un "posteo", que es de uno de dos tipos, nunca ambos a la vez:
+  - Posteo de texto: contenido de texto de hasta 100 caracteres.
+  - Posteo de foto: una única imagen, sin texto asociado.
+- El usuario debe elegir explícitamente qué tipo de posteo va a crear antes de publicar. No existe una opción de posteo mixto (texto + foto).
+- Cada posteo queda asociado al usuario que lo creó (autor).
+- Un usuario autenticado puede ver los posteos de otros usuarios, pero en modo solo lectura.
+
+EDICIÓN Y BORRADO
+- Un usuario autenticado puede editar o eliminar únicamente los posteos que él mismo creó.
+- Un posteo de texto editado sigue respetando el límite de 100 caracteres.
+- Un posteo de foto editado permite reemplazar la imagen.
+- Un usuario NO puede editar ni eliminar posteos creados por otros usuarios, bajo ninguna circunstancia. No existen roles de administrador ni excepciones a esta regla.
+- Todas las acciones de crear, editar y eliminar posteos requieren sesión iniciada; sin sesión iniciada ninguna de estas acciones está disponible ni visible.
+
+CASOS DE BORDE A CONTEMPLAR
+- Intento de publicar un posteo de texto que supere los 100 caracteres: debe rechazarse con feedback claro al usuario.
+- Intento de publicar un posteo sin elegir texto ni foto: debe rechazarse.
+- Intento de editar o eliminar un posteo ajeno (por ejemplo, manipulando la UI o la URL): debe rechazarse tanto visual como funcionalmente.
+- Intento de registrarse con un email ya existente: debe rechazarse con mensaje claro.
+- Intento de acceder a cualquier pantalla de posteos estando deslogueado: debe redirigir a login.
+
+ENTIDADES CLAVE
+- Usuario: email, contraseña, nombre de usuario, identificador único.
+- Posteo: tipo (texto | foto), contenido de texto o referencia a imagen, autor (referencia al usuario), fecha de creación, fecha de última edición (si aplica).
